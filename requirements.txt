@@ -1,0 +1,15 @@
+# Architecture-Agnostic Document Understanding
+# Python 3.8+
+
+# Core
+torch>=2.0.0
+transformers>=4.30.0
+numpy>=1.21.0
+Pillow>=9.0.0
+
+# Training utilities
+tqdm>=4.64.0
+scikit-learn>=1.0.0
+
+# Logging and configuration
+pyyaml>=6.0
