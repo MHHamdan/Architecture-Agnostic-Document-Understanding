@@ -8,8 +8,7 @@ This repository contains the implementation and experimental validation for Hier
 
 ## Model Architecture
 
-http://localhost:8889/edit/Architecture-Agnostic-Document-Understanding/figures/Framework.png
-
+(https://github.com/MHHamdan/Architecture-Agnostic-Document-Understanding/blob/main/figures/Framework.png)
 ```
 
 ## Research Contributions
