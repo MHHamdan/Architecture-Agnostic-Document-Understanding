@@ -122,18 +122,6 @@ The curriculum operates at the data distribution level, making no assumptions ab
 
 Both models use comparable parameter counts to isolate the effect of multimodal processing under controlled curriculum conditions.
 
-## Experimental Results
-
-### Loss Convergence Comparison
-
-| Dataset | BERT Final Loss | LayoutLMv3 Final Loss | Improvement Factor |
-|---------|----------------|----------------------|-------------------|
-| FUNSD | 0.445 | 0.089 | 5.0× |
-| CORD | 0.267 | 0.034 | 7.9× |
-| DocVQA | 0.523 | 0.0024 | 217.9× |
-| Financial | 0.389 | 0.052 | 7.5× |
-| Legal | 0.412 | 0.067 | 6.1× |
-| Technical | 0.501 | 0.045 | 11.1× |
 
 ### Training Efficiency
 
