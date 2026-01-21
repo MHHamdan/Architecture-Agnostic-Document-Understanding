@@ -8,16 +8,16 @@ This repository contains the implementation and experimental validation for Hier
 
 ## Model Architecture
 
-(https://github.com/MHHamdan/Architecture-Agnostic-Document-Understanding/blob/main/figures/Framework.png)
+https://github.com/MHHamdan/Architecture-Agnostic-Document-Understanding/blob/main/figures/Framework.png
 ```
 
 ## Research Contributions
 
-1. **Architecture-Agnostic Curriculum Learning**: HCML achieves consistent sample scaling factors (2.06±0.07 Easy→Medium, 1.50±0.01 Medium→Hard) across BERT and LayoutLMv3, validating curriculum transferability across fundamentally different architectures.
+1. Architecture-Agnostic Curriculum Learning: HCML achieves consistent sample scaling factors (2.06±0.07 Easy→Medium, 1.50±0.01 Medium→Hard) across BERT and LayoutLMv3, validating curriculum transferability across fundamentally different architectures.
 
-2. **Quantitative Multimodal Analysis**: Under identical curriculum conditions, LayoutLMv3 demonstrates 380× arithmetic mean improvement in final training loss compared to BERT, with task-dependent gains from 3.9× (structured forms) to 2,197× (visual question answering).
+2. Quantitative Multimodal Analysis: Under identical curriculum conditions, LayoutLMv3 demonstrates 380× arithmetic mean improvement in final training loss compared to BERT, with task-dependent gains from 3.9× (structured forms) to 2,197× (visual question answering).
 
-3. **Production-Ready Validation**: Zero failures across 120 training sessions with full FP32 precision training feasible on consumer GPUs (4.9GB peak memory on 11GB hardware).
+3. *Production-Ready Validation*: Zero failures across 120 training sessions with full FP32 precision training feasible on consumer GPUs (4.9GB peak memory on 11GB hardware).
 
 ## Datasets
 
