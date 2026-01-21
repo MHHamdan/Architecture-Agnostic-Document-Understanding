@@ -8,7 +8,10 @@ This repository contains the implementation and experimental validation for Hier
 
 ## Model Architecture
 
-https://github.com/MHHamdan/Architecture-Agnostic-Document-Understanding/blob/main/figures/Framework.png
+<img width="4096" height="2825" alt="Framework" src="https://github.com/user-attachments/assets/c7d34bbd-7fc0-489a-86ed-c3d732dec4c0" />
+
+
+
 ```
 
 ## Research Contributions
@@ -17,7 +20,7 @@ https://github.com/MHHamdan/Architecture-Agnostic-Document-Understanding/blob/ma
 
 2. Quantitative Multimodal Analysis: Under identical curriculum conditions, LayoutLMv3 demonstrates 380× arithmetic mean improvement in final training loss compared to BERT, with task-dependent gains from 3.9× (structured forms) to 2,197× (visual question answering).
 
-3. *Production-Ready Validation*: Zero failures across 120 training sessions with full FP32 precision training feasible on consumer GPUs (4.9GB peak memory on 11GB hardware).
+3. Production-Ready Validation: Zero failures across 120 training sessions with full FP32 precision training feasible on consumer GPUs (4.9GB peak memory on 11GB hardware).
 
 ## Datasets
 
