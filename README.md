@@ -12,7 +12,7 @@ This repository contains the implementation and experimental validation for Hier
 
 
 
-```
+
 
 ## Research Contributions
 
@@ -46,7 +46,7 @@ Six diverse document understanding datasets spanning multiple domains:
 
 ```bash
 # Clone repository
-git clone https://github.com/MHHamdan/Architecture-Agnostic-Document-Understanding-.git
+git clone https://github.com/MHHamdan/Architecture-Agnostic-Document-Understanding.git
 cd Architecture-Agnostic-Document-Understanding-
 
 # Install dependencies
