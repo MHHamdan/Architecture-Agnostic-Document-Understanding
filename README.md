@@ -1,59 +1,55 @@
-# Architecture-Agnostic Document Understanding
+# Architecture-Agnostic Curriculum Learning for Document Understanding
 
-A PyTorch implementation of architecture-agnostic curriculum learning for document understanding, validated across BERT and LayoutLMv3 architectures.
+A PyTorch implementation of architecture-agnostic curriculum learning for document understanding, evaluated across BERT and LayoutLMv3 architectures.
 
 ## Overview
 
-This repository contains the implementation and experimental validation for Hierarchical Curriculum Meta-Learning (HCML), a three-phase progressive difficulty training schedule that operates independently of model architecture. We demonstrate consistent curriculum effectiveness across text-only and multimodal document understanding models.
-
-## Model Architecture
-
-http://localhost:8889/edit/Architecture-Agnostic-Document-Understanding/figures/Framework.png
-
-```
+This repository provides the implementation and experimental validation for a progressive data scheduling approach to curriculum learning in document understanding. The three-phase schedule (33% -> 67% -> 100% data) operates independently of model architecture, delivering consistent training time reductions across both text-only and multimodal models.
 
 ## Research Contributions
 
-1. **Architecture-Agnostic Curriculum Learning**: HCML achieves consistent sample scaling factors (2.06±0.07 Easy→Medium, 1.50±0.01 Medium→Hard) across BERT and LayoutLMv3, validating curriculum transferability across fundamentally different architectures.
+1. **Architecture-Agnostic Progressive Scheduling**: A three-phase data schedule that reduces wall-clock training time by ~33% across both BERT (text-only) and LayoutLMv3 (multimodal) without requiring schedule modification per architecture.
 
-2. **Quantitative Multimodal Analysis**: Under identical curriculum conditions, LayoutLMv3 demonstrates 380× arithmetic mean improvement in final training loss compared to BERT, with task-dependent gains from 3.9× (structured forms) to 2,197× (visual question answering).
+2. **Matched-Compute Baselines**: Controlled experiments that separate curriculum effects from compute reduction by comparing against a 7-epoch standard baseline with matched gradient updates.
 
-3. **Production-Ready Validation**: Zero failures across 120 training sessions with full FP32 precision training feasible on consumer GPUs (4.9GB peak memory on 11GB hardware).
+3. **Schedule Ablations**: Comparison of progressive, two-phase, reverse, and random pacing schedules showing that efficiency gains derive from reduced data volume rather than specific ordering.
+
+4. **Statistical Analysis**: Paired t-tests with Cohen's d_z effect sizes across shared random seeds, revealing architecture-dependent curriculum benefits (significant for BERT on FUNSD, not for LayoutLMv3).
 
 ## Datasets
 
-Six diverse document understanding datasets spanning multiple domains:
+Six document understanding datasets spanning multiple domains:
 
 | Dataset | Documents | Task | Domain |
 |---------|-----------|------|--------|
 | FUNSD | 199 | Entity recognition | Forms |
-| CORD | 1,000 | Information extraction | Receipts |
-| DocVQA | 5,349 | Visual question answering | Mixed documents |
-| Financial | 40 | Classification | Financial documents |
-| Legal | 1,200 | Information extraction | Legal contracts |
-| Technical | 2,400 | Classification | Technical manuals |
+| CORD | 1,000 | Key-value extraction | Receipts |
+| DocVQA | 200 | Visual question answering | Mixed documents |
+| Financial | 50 | Classification | Financial documents |
+| Legal | 50 | Information extraction | Legal contracts |
+| Technical | 50 | Classification | Technical manuals |
+
+> FUNSD and CORD are standard benchmarks. DocVQA, Financial, Legal, and Technical use synthetic data for framework validation.
 
 ## Requirements
 
-- Python 3.8 or higher
-- PyTorch 2.0.1 or higher
-- CUDA-capable GPU with 11GB+ memory (recommended)
-- transformers 4.30.0 or higher
+- Python 3.8+
+- PyTorch 2.0+
+- CUDA-capable GPU with 11GB+ memory (tested on RTX 2080 Ti)
+- transformers 4.30+
 
 ## Installation
 
 ```bash
-# Clone repository
-git clone https://github.com/MHHamdan/Architecture-Agnostic-Document-Understanding-.git
-cd Architecture-Agnostic-Document-Understanding-
+git clone https://github.com/MHHamdan/Architecture-Agnostic-Document-Understanding.git
+cd Architecture-Agnostic-Document-Understanding
 
-# Install dependencies
 pip install -r requirements.txt
 ```
 
 ## Quick Start
 
-### Training BERT with HCML
+### Training BERT with Curriculum Learning
 
 ```bash
 python scripts/train_bert.py \
@@ -63,124 +59,131 @@ python scripts/train_bert.py \
     --curriculum
 ```
 
-### Training LayoutLMv3 with HCML
+### Training LayoutLMv3 with Curriculum Learning
 
 ```bash
 python scripts/train_layoutlmv3.py \
     --dataset cord \
     --epochs 10 \
-    --batch_size 8 \
+    --batch_size 4 \
     --curriculum
 ```
 
 ### Reproducing All Experiments
 
 ```bash
-bash scripts/run_all_experiments.sh
+# Full experiment suite (102 runs: primary + ablations + extended domains)
+python scripts/run_experiments.py
+
+# Quick test with a single seed
+python scripts/run_experiments.py --quick
+
+# Specific phase only
+python scripts/run_experiments.py --phase 1   # Primary experiments
+python scripts/run_experiments.py --phase 2   # Schedule ablations
+python scripts/run_experiments.py --phase 3   # Extended domain evaluation
 ```
 
 ## Repository Structure
 
 ```
-Architecture-Agnostic-Document-Understanding-/
-├── src/                          # Source code
-│   ├── curriculum/               # HCML curriculum scheduler
-│   │   └── scheduler.py          # HierarchicalCurriculumScheduler
-│   ├── data/                     # Data loading
-│   │   └── loader.py             # UnifiedDataLoader for 6 datasets
-│   └── models/                   # Model trainers
-│       ├── bert_trainer.py       # BERT training with HCML
-│       └── layoutlmv3_trainer.py # LayoutLMv3 training with HCML
-├── scripts/                      # Training scripts
-│   ├── train_bert.py             # BERT training CLI
-│   ├── train_layoutlmv3.py       # LayoutLMv3 training CLI
-│   └── run_all_experiments.sh    # Full experiment suite
-├── data/                         # Datasets directory
-├── configs/                      # Configuration files
-├── requirements.txt              # Python dependencies
-├── LICENSE                       # MIT license
-└── README.md                     # This file
+Architecture-Agnostic-Document-Understanding/
+├── src/                              # Source code
+│   ├── curriculum/                   # Curriculum scheduler
+│   │   └── scheduler.py             # Progressive data scheduling
+│   ├── data/                         # Data loading
+│   │   └── loader.py                # Unified loader for all datasets
+│   ├── evaluation/                   # Evaluation metrics
+│   │   └── metrics.py               # Entity F1, ANLS, statistical tests
+│   ├── models/                       # Model trainers
+│   │   ├── bert_trainer.py           # BERT training pipeline
+│   │   └── layoutlmv3_trainer.py     # LayoutLMv3 training pipeline
+│   └── training/                     # Training utilities
+│       └── utils.py                  # Seed, optimizer, scheduler, checkpoints
+├── scripts/                          # Training scripts
+│   ├── train_bert.py                 # BERT training CLI
+│   ├── train_layoutlmv3.py           # LayoutLMv3 training CLI
+│   ├── run_experiments.py            # Full experiment suite
+│   └── run_phase3_recovery.py        # Recovery for failed experiments
+├── configs/                          # Configuration files
+│   └── default.yaml                  # Default training configuration
+├── data/                             # Datasets directory
+├── figures/                          # Generated figures
+├── updated-writing-paper/            # LaTeX paper source
+├── requirements.txt                  # Python dependencies
+├── LICENSE                           # MIT license
+└── README.md
 ```
 
-## HCML Algorithm
+## Curriculum Learning Schedule
 
-Hierarchical Curriculum Meta-Learning implements a three-phase progressive training schedule:
+The progressive schedule partitions 10 training epochs into three phases:
 
-- **Phase 1 (Easy)**: Epochs 0-3, 33% of training data
-- **Phase 2 (Medium)**: Epochs 3-7, 67% of training data
-- **Phase 3 (Hard)**: Epochs 7-10, 100% of training data
+| Phase | Epochs | Data Ratio | Description |
+|-------|--------|------------|-------------|
+| Phase 1 (Easy) | 1-3 | 33% | Initial training on data subset |
+| Phase 2 (Medium) | 4-7 | 67% | Expanded data exposure |
+| Phase 3 (Hard) | 8-10 | 100% | Full dataset training |
 
-The curriculum operates at the data distribution level, making no assumptions about model architecture, input modality, or optimization strategy.
+**Effective data exposure**: 3 x 0.33 + 4 x 0.67 + 3 x 1.00 = 6.67 epoch-equivalents (vs. 10.0 for standard training).
 
 ## Model Architectures
 
-**BERT-base-uncased**: 110M parameters, text-only transformer encoder
+| Model | Parameters | Input | Batch Size |
+|-------|------------|-------|------------|
+| BERT-base-uncased | 110M | Text tokens only | 16 |
+| LayoutLMv3-base | 126M | Text + bounding boxes + images | 4 |
 
-**LayoutLMv3-base**: 126M parameters, multimodal transformer with vision encoder
-
-Both models use comparable parameter counts to isolate the effect of multimodal processing under controlled curriculum conditions.
-
-## Experimental Results
-
-### Loss Convergence Comparison
-
-| Dataset | BERT Final Loss | LayoutLMv3 Final Loss | Improvement Factor |
-|---------|----------------|----------------------|-------------------|
-| FUNSD | 0.445 | 0.089 | 5.0× |
-| CORD | 0.267 | 0.034 | 7.9× |
-| DocVQA | 0.523 | 0.0024 | 217.9× |
-| Financial | 0.389 | 0.052 | 7.5× |
-| Legal | 0.412 | 0.067 | 6.1× |
-| Technical | 0.501 | 0.045 | 11.1× |
+## Key Results
 
 ### Training Efficiency
 
-| Architecture | Total Time | Samples/Second | Peak Memory |
-|--------------|-----------|----------------|-------------|
-| BERT | 0.92 hours | 1,250 | 2.1 GB |
-| LayoutLMv3 | 2.30 hours | 500 | 4.9 GB |
+The progressive schedule reduces training time by ~33% for both architectures:
+
+| Architecture | FUNSD Speedup | CORD Speedup |
+|--------------|---------------|--------------|
+| BERT | 33.3% | 33.3% |
+| LayoutLMv3 | 33.9% | 33.5% |
+
+### Matched-Compute Comparison (Curriculum-10 vs Standard-7)
+
+| Dataset | Architecture | Delta F1 | p-value | Cohen's d_z |
+|---------|-------------|----------|---------|-------------|
+| FUNSD | BERT | +0.023 | 0.022 | 3.83 |
+| FUNSD | LayoutLMv3 | +0.003 | 0.621 | 0.33 |
+| CORD | BERT | +0.000 | 0.900 | 0.08 |
+| CORD | LayoutLMv3 | -0.006 | 0.496 | -0.48 |
 
 ## Reproducibility
 
 All experiments use deterministic settings:
 
-- Fixed random seed: 42
-- Deterministic CUDA operations enabled
-- Exact software versions in requirements.txt
+- Fixed random seeds: 42, 123, 456
+- Deterministic CUDA operations
+- Exact software versions in `requirements.txt`
 
-Training configurations:
-- Optimizer: AdamW (beta1=0.9, beta2=0.999, epsilon=1e-8)
-- Learning rate: 5e-5 with linear warmup and cosine decay
-- Gradient clipping: 1.0
-- Precision: FP32 (no quantization)
+Training configuration:
+- Optimizer: AdamW (beta1=0.9, beta2=0.999, weight decay=0.01)
+- Learning rate: 5e-5 with linear warmup (10%) and linear decay
+- Gradient clipping: max norm 1.0
+- Precision: FP32
 
-## Hardware Requirements
-
-Minimum specifications for reproducing experiments:
-- GPU: NVIDIA GPU with 11GB memory (tested on RTX 2080 Ti)
-- CPU: Modern multi-core processor
-- RAM: 16GB system memory
-- Storage: 50GB for datasets and checkpoints
+Hardware: NVIDIA RTX 2080 Ti (11GB), ~2.1 GB peak memory (BERT), ~2.5 GB peak memory (LayoutLMv3).
 
 ## Citation
 
 If you use this code or methodology in your research, please cite:
 
 ```bibtex
-@article{hamdan2025architecture,
+@inproceedings{hamdan2025architecture,
   title={Architecture-Agnostic Curriculum Learning for Document Understanding:
-         A Comparative Study of Text-Only and Multimodal Approaches},
-  author={Hamdan, M. H.},
-  journal={Under Review},
+         Empirical Evidence from Text-Only and Multimodal Paradigms},
+  author={Hamdan, Mohammed and Dentamaro, Vincenzo and Pirlo, Giuseppe and Cheriet, Mohamed},
   year={2025},
-  url={https://github.com/MHHamdan/Architecture-Agnostic-Document-Understanding-}
+  note={Under review}
 }
 ```
 
 ## License
 
-MIT License - See LICENSE file for details
-
-## Contact
-
-For questions about the implementation or experimental setup, please open an issue on GitHub.
+MIT License - See [LICENSE](LICENSE) for details.

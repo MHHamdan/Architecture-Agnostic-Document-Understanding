@@ -11,5 +11,12 @@ Pillow>=9.0.0
 tqdm>=4.64.0
 scikit-learn>=1.0.0
 
+# Data loading
+datasets>=2.14.0  # HuggingFace datasets library (FUNSD, CORD)
+
+# Evaluation
+seqeval>=1.2.2  # Entity-level F1 for NER/SER tasks
+scipy>=1.7.0    # Statistical analysis (paired t-tests)
+
 # Logging and configuration
 pyyaml>=6.0

@@ -5,12 +5,12 @@
 model:
   bert:
     name: "bert-base-uncased"
-    num_labels: 10
+    num_labels: 7  # FUNSD IOB: B-Q, I-Q, B-A, I-A, B-H, I-H, O
     max_length: 512
 
   layoutlmv3:
     name: "microsoft/layoutlmv3-base"
-    num_labels: 10
+    num_labels: 7  # Same label set for consistency
     max_length: 512
 
 # Training Settings
@@ -18,44 +18,93 @@ training:
   epochs: 10
   batch_size:
     bert: 16
-    layoutlmv3: 8
+    layoutlmv3: 4  # Smaller due to image processing memory
   learning_rate: 5e-5
   weight_decay: 0.01
   warmup_ratio: 0.1
   max_grad_norm: 1.0
-  seed: 42
+  seeds: [42, 123, 456]  # Three seeds for statistical analysis
+  lr_scheduler: "linear"  # linear warmup + linear decay
 
-# Curriculum Learning (HCML)
+# Curriculum Learning
 curriculum:
-  enabled: true
+  # Schedule types: progressive, two_phase, reverse, random, standard
+  schedule_type: "progressive"
   phases:
     easy:
-      end_ratio: 0.3
-      data_ratio: 0.33
+      end_ratio: 0.3   # First 30% of epochs
+      data_ratio: 0.33  # Use 33% of data
     medium:
-      end_ratio: 0.7
-      data_ratio: 0.67
+      end_ratio: 0.7   # Next 40% of epochs
+      data_ratio: 0.67  # Use 67% of data
     hard:
-      end_ratio: 1.0
-      data_ratio: 1.0
+      end_ratio: 1.0   # Final 30% of epochs
+      data_ratio: 1.0   # Use 100% of data
+  # Effective epochs: 3x0.33 + 4x0.67 + 3x1.00 = 6.67
+
+# Experimental Conditions
+conditions:
+  - name: "Standard-10"
+    epochs: 10
+    curriculum: false
+    description: "Full baseline: 10 epochs, 100% data"
+
+  - name: "Curriculum-10"
+    epochs: 10
+    curriculum: true
+    schedule_type: "progressive"
+    description: "Progressive schedule: 33%->67%->100% over 10 epochs (6.67 eff.)"
+
+  - name: "Standard-7"
+    epochs: 7
+    curriculum: false
+    description: "Matched-compute baseline: 7 epochs, 100% data"
+
+  # Schedule ablations
+  - name: "Two-phase"
+    epochs: 10
+    curriculum: true
+    schedule_type: "two_phase"
+    description: "50%->100% over 10 epochs (7.5 eff.)"
+
+  - name: "Reverse"
+    epochs: 10
+    curriculum: true
+    schedule_type: "reverse"
+    description: "100%->67%->33% over 10 epochs (6.67 eff.)"
+
+  - name: "Random"
+    epochs: 10
+    curriculum: true
+    schedule_type: "random"
+    description: "Random ratio per epoch (~6.67 eff.)"
 
 # Dataset Settings
 datasets:
+  # Primary benchmarks
   - name: funsd
     task: entity_recognition
     splits: [train, test]
+    label_set: [B-QUESTION, I-QUESTION, B-ANSWER, I-ANSWER, B-HEADER, I-HEADER, O]
+
   - name: cord
     task: key_value_extraction
     splits: [train, validation, test]
+    num_labels: 30
+
+  # Extended domain
   - name: docvqa
     task: visual_qa
     splits: [validation]
+
   - name: financial
     task: classification
     splits: [train, test]
+
   - name: legal
     task: extraction
     splits: [train, test]
+
   - name: technical
     task: classification
     splits: [train, validation]
@@ -63,10 +112,11 @@ datasets:
 # Evaluation
 evaluation:
   metrics:
-    entity_recognition: f1
-    key_value_extraction: f1
-    visual_qa: anls
-    classification: accuracy
+    entity_recognition: "entity_f1"  # seqeval entity-level
+    key_value_extraction: "entity_f1"
+    visual_qa: "anls"
+    classification: "accuracy"
+  eval_split: "test"  # Evaluate on test split
 
 # Output
 output:

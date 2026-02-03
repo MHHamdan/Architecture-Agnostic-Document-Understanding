@@ -36,6 +36,9 @@ env/
 # Jupyter
 .ipynb_checkpoints/
 
+# Non-codebase (paper, figures, experiment results)
+noncodeBase/
+
 # Results and checkpoints
 results/
 checkpoints/
@@ -68,3 +71,12 @@ Thumbs.db
 tmp/
 temp/
 *.tmp
+
+# Claude Code
+.claude/
+
+# LaTeX build artifacts
+*.aux
+*.bbl
+*.blg
+*.xdv
